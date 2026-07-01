@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thmanyah Personal OS v2.5</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght=300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-primary: #FDFDFB;
+            --bg-secondary: #FFFFFF;
+            --text-main: #2C2A27;
+            --text-muted: #7D7871;
+            --accent-color: #B5843F; 
+            --accent-light: #F4ECE1;
+            --border-color: #EAE6DF;
+            --shadow-sm: 0 2px 8px rgba(44,42,39,0.04);
+            --card-radius: 16px;
+            --transition-smooth: all 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+            --timer-text-color: var(--accent-color);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #141312;
+            --bg-secondary: #1D1C1A;
+            --text-main: #EAE7E2;
+            --text-muted: #969087;
+            --accent-color: #D9A75D;
+            --accent-light: #2D2922;
+            --border-color: #2D2A26;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 50px;
+            overflow-x: hidden;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        header {
+            background-color: var(--bg-secondary);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .streak-badge {
+            background-color: var(--accent-light);
+            color: var(--accent-color);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-round {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-smooth);
+        }
+
+        .btn-round:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            background-color: var(--accent-light);
+        }
+
+        .app-container {
+            max-width: 1250px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .dashboard-header {
+            margin-bottom: 32px;
+        }
+
+        .stats-dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .stat-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--card-radius);
+            padding: 20px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-box-val {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            display: block;
+            margin-top: 4px;
+        }
+
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .module-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--card-radius);
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .module-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-color);
+            box-shadow: 0 12px 24px rgba(181,132,63,0.08);
+        }
+
+        .module-card i {
+            font-size: 2.2rem;
+            color: var(--accent-color);
+        }
+
+        .module-card span {
+            font-weight: 500;
+            font-size: 1.05rem;
+        }
+
+        .section-view {
+            display: none;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--card-radius);
+            padding: 30px;
+            box-shadow: var(--shadow-sm);
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .section-view.active {
+            display: block;
+        }
+
+        .view-top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 16px;
+        }
+
+        .btn-back-dash {
+            background: none;
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+        }
+
+        .input-flat {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+            outline: none;
+        }
+
+        .input-flat:focus {
+            border-color: var(--accent-color);
+        }
+
+        .select-flat {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            border-radius: 10px;
+            margin-bottom: 12px;
+            outline: none;
+        }
+
+        .btn-action {
+            background-color: var(--accent-color);
+            color: #FFFFFF;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: var(--transition-smooth);
+        }
+
+        .btn-action:hover {
+            opacity: 0.9;
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 10px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition-smooth);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent-color);
+            background-color: var(--accent-light);
+        }
+
+        .timer-viewport {
+            padding: 40px;
+            text-align: center;
+            border-radius: var(--card-radius);
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            transition: background 0.5s ease;
+        }
+
+        .timer-box-display {
+            font-size: 5rem;
+            font-weight: 300;
+            margin: 30px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-smooth);
+            color: var(--timer-text-color);
+        }
+
+        .shape-circle { border: 4px solid var(--accent-color); border-radius: 50%; width: 240px; height: 240px; }
+        .shape-square { border: 4px solid var(--accent-color); border-radius: 16px; width: 240px; height: 240px; }
+        .shape-rect { border: 4px solid var(--accent-color); border-radius: 12px; width: 320px; height: 160px; }
+        .shape-text { border: none !important; }
+
+        .en-circle-menu {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            gap: 16px;
+            justify-content: center;
+        }
+
+        .en-circle-item {
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin: 0 auto;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .en-circle-item:hover {
+            border-color: var(--accent-color);
+            background-color: var(--accent-light);
+            transform: scale(1.05);
+        }
+
+        .en-circle-item i {
+            font-size: 1.5rem;
+            color: var(--accent-color);
+        }
+
+        .en-circle-item span {
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .sub-page-view {
+            border: 1px solid var(--border-color);
+            border-radius: var(--card-radius);
+            padding: 24px;
+            margin-top: 20px;
+            background-color: var(--bg-secondary);
+        }
+
+        .horizontal-scroll-grid {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            padding: 10px 4px;
+            scroll-behavior: smooth;
+        }
+
+        .horizontal-scroll-grid::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .horizontal-scroll-grid::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 10px;
+        }
+
+        .grid-box-card {
+            min-width: 220px;
+            max-width: 280px;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            flex-shrink: 0;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition-smooth);
+        }
+
+        .grid-box-card:hover {
+            border-color: var(--accent-color);
+        }
+
+        .canvas-container {
+            position: relative;
+            margin-top: 15px;
+            background-color: #FFFFFF;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .canvas-area {
+            cursor: crosshair;
+            display: block;
+            touch-action: none; 
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .scope-selectors {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .scope-btn {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            white-space: nowrap;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        .scope-btn.active {
+            background: var(--accent-color);
+            color: #FFFFFF;
+            border-color: var(--accent-color);
+        }
+
+        body.focus-active header, 
+        body.focus-active .dashboard-header, 
+        body.focus-active .modules-grid,
+        body.focus-active .view-top-bar .btn-back-dash {
+            display: none !important;
+        }
+        body.focus-active .section-view {
+            display: block !important;
+            border: none !important;
+            background: none !important;
+        }
+
+        .voc-grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+        .voc-box-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition-smooth);
+        }
+        .voc-box-card:hover { border-color: var(--accent-color); }
+
+        .voc-stats-strip {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .voc-stat-pill {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <header id="mainHeader">
+        <div class="logo-text">
+            <i class="fa-regular fa-compass"></i>
+            <span>مَدار | Personal OS</span>
+        </div>
+        <div class="header-actions">
+            <div class="streak-badge" id="headerStreak"><i class="fa-solid fa-fire"></i> <span>0 يوم</span></div>
+            <button class="btn-round" title="وضع التركيز العميق" onclick="activateFocusMode()"><i class="fa-solid fa-bolt"></i></button>
+            <button class="btn-round" title="تبديل المظهر" onclick="toggleSystemTheme()"><i class="fa-regular fa-moon"></i></button>
+        </div>
+    </header>
+
+    <div class="app-container">
+
+        <div id="dashboardContainer">
+            <div class="dashboard-header">
+                <h2>أهلاً بك في مساحتك المتكاملة ✨</h2>
+                <div class="stats-dashboard-grid">
+                    <div class="stat-box"><span>مهام اليوم النشطة</span><span class="stat-box-val" id="dashTasksCount">0</span></div>
+                    <div class="stat-box"><span>وقت التركيز المنجز</span><span class="stat-box-val" id="dashFocusDone">0 دقيقة</span></div>
+                    <div class="stat-box"><span>متبقي من السنة</span><span class="stat-box-val" id="dashYearDaysLeft">183 يوم</span></div>
+                </div>
+            </div>
+
+            <div class="modules-grid">
+                <div class="module-card" onclick="showModule('calendarSection')"><i class="fa-regular fa-calendar"></i><span>1. التقويم</span></div>
+                <div class="module-card" onclick="showModule('tasksSection')"><i class="fa-regular fa-square-check"></i><span>2. المهام</span></div>
+                <div class="module-card" onclick="showModule('timerSection')"><i class="fa-regular fa-clock"></i><span>3. التايمر</span></div>
+                <div class="module-card" onclick="showModule('englishSection')"><i class="fa-solid fa-language"></i><span>4. تعلم الإنجليزية</span></div>
+                <div class="module-card" onclick="showModule('vocabularySection')"><i class="fa-solid fa-book-bookmark"></i><span>5. المفردات | Vocabulary</span></div>
+                <div class="module-card" onclick="showModule('coursesSection')"><i class="fa-regular fa-circle-play"></i><span>6. الكورسات والحلقات</span></div>
+                <div class="module-card" onclick="showModule('librarySection')"><i class="fa-regular fa-folder-open"></i><span>7. المكتبة الشخصية</span></div>
+                <div class="module-card" onclick="showModule('ideasSection')"><i class="fa-regular fa-lightbulb"></i><span>8. صندوق الأفكار</span></div>
+                <div class="module-card" onclick="showModule('goalsSection')"><i class="fa-solid fa-bullseye"></i><span>9. أهداف الحياة</span></div>
+                <div class="module-card" onclick="showModule('statsSection')"><i class="fa-solid fa-chart-pie"></i><span>10. الإحصائيات المركزية</span></div>
+            </div>
+        </div>
+
+        <div id="calendarSection" class="section-view">
+            <div class="view-top-bar">
+                <h3><i class="fa-regular fa-calendar"></i> نظام التقويم المتقدم لعام 2026</h3>
+                <button class="btn-back-dash" onclick="returnToDashboard()"><i class="fa-solid fa-arrow-left"></i> العودة</button>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom:24px;">
+                <div class="stat-box"><span>اليوم الحالي</span><span class="stat-box-val">1 يوليو 2026</span></div>
+                <div class="stat-box"><span>رقم اليوم في السنة</span><span class="stat-box-val">182</span></div>
+                <div class="stat-box"><span>الأيام المنقضية</span><span class="stat-box-val">182</span></div>
+                <div class="stat-box"><span>الأيام المتبقية</span><span class="stat-box-val">183</span></div>
+            </div>
+            
+            <h4>التقويم السنوي الشامل والحدث الفوري</h4><br>
+            <div style="display:grid; grid-template-columns: 1fr 300px; gap:20px;">
+                <div id="calendarGridRender" style="display:grid; grid-template-columns: repeat(7, 1fr); gap:6px; border:1px solid var(--border-color); padding:15px; border-radius:12px;"></div>
+                <div style="border:1px solid var(--border-color); padding:15px; border-radius:12px;">
+                    <h5>إضافة حدث وجدولة تاريخية</h5><br>
+                    <input type="text" id="calEventTitle" placeholder="اسم المناسبة أو التذكير" class="input-flat">
+                    <input type="date" id="calEventDate" class="input-flat">
+                    <button class="btn-action" style="width:100%" onclick="addCalendarEvent()">تثبيت المناسبة بالتقويم</button>
+                    <div id="calEventsList" style="margin-top:15px; font-size:0.9rem;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tasksSection" class="section-view">
+            <div class="view-top-bar">
+                <h3><i class="fa-regular fa-square-check"></i> محرك إدارة وتتبع المهام</h3>
+                <button class="btn-back-dash" onclick="returnToDashboard()"><i class="fa-solid fa-arrow-left"></i> العودة</button>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px;">
+                <div>
+                    <h5>📅 نطاق الأيام</h5>
+                    <div class="scope-selectors" id="daysScopeContainer" style="flex-direction: column; overflow-y: auto; max-height: 200px;"></div>
+                    
+                    <h5 style="margin-top: 15px;">📅 نطاق الأشهر</h5>
+                    <div class="scope-selectors" id="monthsScopeContainer" style="flex-direction: column; overflow-y: auto; max-height: 200px;"></div>
+                </div>
+
+                <div>
+                    <div style="border:1px solid var(--border-color); padding:20px; border-radius:12px; margin-bottom:20px; background: var(--bg-primary);">
+                        <h5 id="taskFormHeader">تحديد يوم أو شهر لفتح نموذج إدراج المهام</h5>
+                        <div id="taskFormFields" style="display:none; margin-top: 12px;">
+                            <input type="text" id="taskTitle" placeholder="ما الذي تريد إنجازه؟" class="input-flat">
+                            <div style="display:flex; gap:10px;">
+                                <input type="time" id="taskStart" class="input-flat" title="وقت البداية">
+                                <input type="time" id="taskEnd" class="input-flat" title="وقت النهاية">
+                            </div>
+                            <input type="url" id="taskLink" placeholder="رابط مرجعي خارجي (إن وجد)" class="input-flat">
+                            <select id="taskPriority" class="select-flat">
+                                <option value="normal">أولوية عادية</option>
+                                <option value="high">أولوية قصوى ⬆️</option>
+                            </select>
+                            <label style="display:flex; align-items:center; gap:8px; margin-bottom:12px; font-size:0.9rem;">
+                                <input type="checkbox" id="taskEnglishTrack"> ربط وإرسال المؤشر مباشرة لقسم تتبع اللغة الإنجليزية 🔥
+                            </label>
+                            <button class="btn-action" onclick="saveNewTaskSystem()">تثبيت وإدراج المهمة</button>
+                        </div>
+                    </div>
+
+                    <h5 id="activeTasksTitle">قائمة المهام</h5><br>
+                    <div id="tasksRenderBox"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="timerSection" class="section-view">
+            <div class="view-top-bar">
+                <h3><i class="fa-regular fa-clock"></i> غرف عزل المشتتات والتايمر المتقدم</h3>
+                <button class="btn-back-dash" onclick="returnToDashboard()"><i class="fa-solid fa-arrow-left"></i> العودة</button>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+                <div>
+                    <button class="btn-action" onclick="triggerBgUploadClick()"><i class="fa-regular fa-image"></i> رفع خلفية مخصصة</button>
+                    <input type="file" id="timerBgUploadInput" style="display:none;" onchange="processTimerBg(event)">
+                </div>
+                <div id="timerControlBarToggle">
+                    <button class="btn-round" onclick="toggleTimerControls()" title="إخفاء شريط التحكم بالسهم"><i class="fa-solid fa-chevron-up" id="arrowHideIcon"></i></button>
+                </div>
+            </div>
+
+            <div class="timer-viewport" id="timerViewportArea">
+                <div class="timer-box-display shape-circle" id="mainTimeDisplay">25:00</div>
+                
+                <div id="timerControlsWrapper">
+                    <div style="margin:15px 0;">
+                        <button class="btn-secondary" onclick="setShape('circle')">دائري</button>
+                        <button class="btn-secondary" onclick="setShape('square')">مربع</button>
+                        <button class="btn-secondary" onclick="setShape('rect')">مستطيل</button>
+                        <button class="btn-secondary" onclick="setShape('text')">نص فقط</button>
+                    </div>
+                    
+                    <div style="margin:15px 0; display:flex; justify-content:center; gap:8px;">
+                        <button class="btn-action" onclick="startSystemTimer()">بدء التركيز</button>
+                        <button class="btn-secondary" onclick="pauseSystemTimer()">إيقاف مؤقت</button>
+                        <button class="btn-secondary" onclick="resetSystemTimer()">إعادة تعيين</button>
+                    </div>
+
+                    <div style="margin:20px 0;">
+                        <h5>الأصوات البيئية المحيطة والـ Lo-Fi</h5><br>
+                        <select id="ambientSoundSelect" class="select-flat" style="width:250px; margin:0 auto;" onchange="playSelectedAmbient()">
+                            <option value="none">بدون صوت</option>
+                            <option value="rain">🌧️ Rain (أمطار دافئة)</option>
+                            <option value="thunder">⚡ Thunder (رعد وعزل صخب)</option>
+                            <option value="coffee">☕ Coffee Shop (مقهى هادئ)</option>
+                            <option value="lofi">🎵 Lo-fi Beats (موسيقى دراسة)</option>
+                        </select>
+                        <audio id="audio_rain" loop src="https://assets.mixkit.co/active_storage/sfx/2433/2433-84.wav"></audio>
+                        <audio id="audio_thunder" loop src="https://assets.mixkit.co/active_storage/sfx/1657/1657-84.wav"></audio>
+                        <audio id="audio_coffee" loop src="https://assets.mixkit.co/active_storage/sfx/2384/2384-84.wav"></audio>
+                        <audio id="audio_lofi" loop src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="englishSection" class="section-view">
+            <div class="view-top-bar">
+                <h3><i class="fa-solid fa-language"></i> المنظومة الكبرى لتعلم اللغة الإنجليزية</h3>
+                <button class="btn-back-dash" onclick="returnToDashboard()"><i class="fa-solid fa-arrow-left"></i> العودة</button>
+            </div>
+
+            <div class="en-circle-menu">
+                <div class="en-circle-item" onclick="openEnSubPage('enTrack')"><i class="fa-solid fa-fire-burner"></i><span>التتبع</span></div>
+                <div class="en-circle-item" onclick="openEnSubPage('enListen')"><i class="fa-solid fa-headphones"></i><span>الاستماع</span></div>
+                <div class="en-circle-item" onclick="openEnSubPage('enSpeak')"><i class="fa-solid fa-microphone"></i><span>التحدث</span></div>
+                <div class="en-circle-item" onclick="openEnSubPage('enShadow')"><i class="fa-solid fa-people-arrows"></i><span>الشادونغ</span></div>
+                <div class="en-circle-item" onclick="openEnSubPage('enRead')"><i class="fa-solid fa-book-open"></i><span>القراءة</span></div>
+                <div class="en-circle-item" onclick="openEnSubPage('enWrite')"><i class="fa-solid fa-pen-nib"></i><span>الكتابة</span></div>
+                <div class="en-circle-item" onclick="openEnSubPage('enTranslate')"><i class="fa-solid fa-language"></i><span>الترجمة الفورية</span></div>
+                <div class="en-circle-item" onclick="window.open('https://youglish.com', '_blank')"><i class="fa-solid fa-bolt-lightning"></i><span>YouGlish</span></div>
+            </div>
+
+            <div id="enSubPagesContainer">
+                <div id="enPage_enTrack" class="sub-page-view" style="display:none;">
+                    <h4>تتبع أداء اللغة الإنجليزية المباشر</h4><br>
+                    <div id="enTrackMessagesBox" style="padding:15px; border-radius:8px; background-color:var(--accent-light);">
+                        لا توجد رسائل محفزة اليوم، ابدأ بإنهاء مهامك اللغوية الآن!
+                    </div>
+                </div>
+
+                <div id="enPage_enListen" class="sub-page-view" style="display:none;">
+                    <h4>🎧 قسم الاستماع الاحترافي</h4><br>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px;">
+                        <button class="btn-secondary" onclick="triggerPrompt('listenSource')">➕ إضافة اسم ورابط استماع</button>
+                        <button class="btn-secondary" onclick="triggerPrompt('listenTip')">💡 إضافة نصيحة جديدة</button>
+                        <button class="btn-secondary" onclick="triggerPrompt('listenRecord')">📝 إضافة مذكرات تسجيل يدوية</button>
+                    </div>
+                    
+                    <h5>🔗 المصادر المضافة:</h5>
+                    <div class="horizontal-scroll-grid" id="listenSourcesRender"></div>
+                    
+                    <h5 style="margin-top:15px;">💡 لوحة الملاحظات والنصائح الفعالة:</h5>
+                    <div class="horizontal-scroll-grid" id="listenTipsRender"></div>
+
+                    <h5 style="margin-top:15px;">📥 مذكرات الاستماع المسجلة يدوياً:</h5>
+                    <div class="horizontal-scroll-grid" id="listenRecordsRender"></div>
+                </div>
+
+                <div id="enPage_enSpeak" class="sub-page-view" style="display:none;">
+                    <h4>🗣️ قسم طلاقة التحدث والمحادثة</h4><br>
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:20px;">
+                        <button class="btn-secondary" onclick="document.getElementById('speakImgInput').click()">🖼️ إضافة / عرض الصور المرفوعة</button>
+                        <button class="btn-action" onclick="window.open('https://chatgpt.com', '_blank')"><i class="fa-solid fa-robot"></i> رابط مباشر إلى ChatGPT</button>
+                        <button class="btn-secondary" onclick="triggerPrompt('speakRecord')">⏱️ إضافة توثيق يدوي (يوم/تاريخ/مدة)</button>
+                    </div>
+                    <input type="file" id="speakImgInput" style="display:none;" onchange="uploadEnImage(event, 'speak')">
+
+                    <h5>🖼️ معرض الصور والمواضيع المحفوظة:</h5>
+                    <div class="horizontal-scroll-grid" id="speakImagesRender"></div>
+
+                    <h5 style="margin-top:15px;">📥 توثيقات التحدث المحفوظة:</h5>
+                    <div class="horizontal-scroll-grid" id="speakRecordsRender"></div>
+                </div>
+
+                <div id="enPage_enShadow" class="sub-page-view" style="display:none;">
+                    <h4>👥 تقنيات المحاكاة الظلية (Shadowing)</h4><br>
+                    <button class="btn-secondary" onclick="triggerPrompt('shadowItem')" style="margin-bottom:15px;">➕ إضافة مصدر (اسم وتاريخ ورابط)</button>
+                    
+                    <h5>🎯 مصادر تمارين الشادونغ المجدولة:</h5>
+                    <div class="horizontal-scroll-grid" id="shadowRenderContainer"></div>
+                </div>
+
+                <div id="enPage_enRead" class="sub-page-view" style="display:none;">
+                    <h4>📖 لوحات القراءة التفاعلية الممنهجة</h4><br>
+                    <div style="display:flex; gap:12px; margin-bottom:20px;">
+                        <button class="btn-secondary" onclick="triggerPrompt('readSource')">📁 إضافة مصادر خارجية (الاسم والرابط)</button>
+                        <button class="btn-secondary" onclick="triggerPrompt('readDiary')">📋 توثيق قراءتي اليومية</button>
+                    </div>
+
+                    <h5>📁 مصادر القراءة المعتمدة:</h5>
+                    <div class="horizontal-scroll-grid" id="readSourcesRender"></div>
+
+                    <h5 style="margin-top:15px;">📝 سجل قراءاتي اليومية المتراصة:</h5>
+                    <div class="horizontal-scroll-grid" id="readDiariesRender"></div>
+                </div>
+
+                <div id="enPage_enWrite" class="sub-page-view" style="display:none;">
+                    <h4>✍️ مستندات ومهارات الكتابة الحرة والذكية</h4><br>
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:20px;">
+                        <button class="btn-secondary" onclick="document.getElementById('writeImgInput').click()">🖼️ إضافة ومراجعة مواضيع الصور</button>
+                        <button class="btn-action" onclick="window.open('https://chatgpt.com', '_blank')"><i class="fa-solid fa-spell-check"></i> مصحح ChatGPT النحوي</button>
+                        <button class="btn-secondary" onclick="triggerPrompt('writeRecord')">⏱️ إضافة توثيق يدوي للكتابة</button>
+                    </div>
+                    <input type="file" id="writeImgInput" style="display:none;" onchange="uploadEnImage(event, 'write')">
+
+                    <h5>🖼️ معرض صور مواضيع الكتابة:</h5>
+                    <div class="horizontal-scroll-grid" id="writeImagesRender"></div>
+
+                    <h5 style="margin-top:15px;">📥 كتل توثيق جلسات الكتابة:</h5>
+                    <div class="horizontal-scroll-grid" id="writeRecordsRender"></div>
+
+                    <h5 style="margin-top:20px;">🎨 مساحة التأشير والكتابة الحرة (مثالية لاستخدام القلم الذكي)</h5>
+                    <div style="margin-top:10px; display:flex; gap:10px;">
+                        <button class="btn-secondary" onclick="setCanvasTool('black')">⚫ القلم الأسود</button>
+                        <button class="btn-secondary" onclick="setCanvasTool('erase')">🧽 المساحة</button>
+                        <button class="btn-secondary" onclick="clearCanvasArea()">🧹 مسح اللوحة</button>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="freeWritingCanvas" width="900" height="350" class="canvas-area"></canvas>
+                    </div>
+                </div>
+
+                <div id="enPage_enTranslate" class="sub-page-view" style="display:none;">
+                    <h4>🌐 بوابة خدمات وقواميس الترجمة العالمية الفورية</h4><br>
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px;">
+                        <button class="btn-secondary" onclick="window.open('https://translate.google.com', '_blank')"><i class="fa-solid fa-g"></i> Google Translate</button>
+                        <button class="btn-secondary" onclick="window.open('https://www.deepl.com/translator', '_blank')"><i class="fa-solid fa-language"></i> DeepL Translator</button>
+                        <button class="btn-secondary" onclick="window.open('https://converso.reverso.net/', '_blank')"><i class="fa-solid fa-rotate"></i> Reverso Context</button>
+                        <button class="btn-secondary" onclick="window.open('https://dictionary.cambridge.org/', '_blank')"><i class="fa-solid fa-graduation-cap"></i> Cambridge Dictionary</button>
+                        <button class="btn-secondary" onclick="window.open('https://www.oxfordlearnersdictionaries.com/', '_blank')"><i class="fa-solid fa-book"></i> Oxford Dictionary</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="vocabularySection" class="section-view">
+            <div class="view-top-bar">
+                <h3><i class="fa-solid fa-book-bookmark"></i> 📚 قاموسي الشخصي الذكي | Vocabulary Database</h3>
+                <button class="btn-back-dash" onclick="returnToDashboard()"><i class="fa-solid fa-arrow-left"></i> العودة</button>
+            </div>
+
+            <div class="voc-stats-strip">
+                <div class="voc-stat-pill"><span>إجمالي الكلمات</span><span class="stat-box-val" id="vTotal">0</span></div>
+                <div class="voc-stat-pill"><span>الجديدة</span><span class="stat-box-val" id="vNew">0</span></div>
+                <div class="voc-stat-pill"><span>قيد التعلم</span><span class="stat-box-val" id="vLearning">0</span></div>
+                <div class="voc-stat-pill"><span>المتقنة</span><span class="stat-box-val" id="vMastered">0</span></div>
+            </div>
+
+            <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 20px; flex-wrap: wrap;">
+                <button class="btn-action" onclick="openNewWordModal()">➕ إضافة كلمة جديدة</button>
+                <button class="btn-secondary" onclick="startSpacedReview()"><i class="fa-solid fa-retweet"></i> بدء المراجعة الذكية الفورية</button>
+                <input type="text" id="vocSearchInput" placeholder="🔍 ابحث بالكلمة الإنجليزية أو المعنى العربي هنا مباشرة..." class="input-flat" style="margin:0; flex:1;" oninput="filterVocabularyItems()">
+            </div>
+
+            <h5>🔲 كتل الكلمات المحفوظة الحالية (تصفح لا نهائي):</h5>
+            <div class="voc-grid-container" id="vocabularyListContainer"></div>
+        </div>
+
+        <div id="newWordModal" style="display:none; position:fixed; top:5%; left:5%; width:90%; height:90%; background:var(--bg-secondary); border:2px solid var(--accent-color); z-index:5000; border-radius:16px; padding:25px; overflow-y:auto; box-shadow:0 20px 40px rgba(0,0,0,0.3);">
+            <h4>إضافة كلمة جديدة للقاعدة المركزية</h4><br>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+                <div>
+                    <input type="text" id="wWord" placeholder="الكلمة (Word)*" class="input-flat">
+                    <input type="text" id="wPron" placeholder="النطق (Pronunciation)" class="input-flat">
+                    <input type="text" id="wIpa" placeholder="طريقة النطق الصوتية (IPA)" class="input-flat">
+                    <input type="text" id="wMeaningAr" placeholder="المعنى بالعربية*" class="input-flat">
+                    <input type="text" id="wMeaningEn" placeholder="المعنى بالإنجليزية المبسطة (A2-B1)" class="input-flat">
+                </div>
+                <div>
+                    <select id="wType" class="select-flat">
+                        <option value="Noun">Noun</option><option value="Verb">Verb</option><option value="Adjective">Adjective</option>
+                        <option value="Adverb">Adverb</option><option value="Phrase">Phrase</option><option value="Idiom">Idiom</option>
+                    </select>
+                    <select id="wSource" class="select-flat">
+                        <option value="القراءة">📖 مصدر: القراءة</option><option value="الاستماع">🎧 مصدر: الاستماع</option>
+                        <option value="الترجمة">🌐 مصدر: الترجمة</option><option value="الترجمة">🗣️ مصدر: الشادونغ</option>
+                    </select>
+                    <select id="wLevel" class="select-flat">
+                        <option value="A1">A1</option><option value="A2">A2</option><option value="B1">B1</option>
+                    </select>
+                    <select id="wState" class="select-flat">
+                        <option value="جديدة">🟥 جديدة</option><option value="أتعلمها">🟨 أتعلمها</option><option value="أتقنتها">🟩 أتقنتها</option>
+                    </select>
+                    <input type="text" id="wExample" placeholder="مثال بسيط باللغة الإنجليزية" class="input-flat">
+                </div>
+            </div>
+            <br>
+            <button class="btn-action" onclick="saveWordToDatabase()">تأكيد وإدراج الكلمة المباشر</button>
+            <button class="btn-secondary" onclick="closeWordModal()">إلغاء</button>
+        </div>
+
+        <div id="coursesSection" class="section-view">
+            <div class="view-top-bar">
+                <h3><i class="fa-regular fa-circle-play"></i> كورسات وحلقات مدهشة (لحياة أفضل)</h3>
+                <button class="btn-back-dash" onclick="returnToDashboard()"><i class="fa-solid fa-arrow-left"></i> العودة</button>
+            </div>
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:16px;">
+                <div style="border:2px dashed var(--border-color); padding:25px; border-radius:12px; text-align:center; cursor:pointer;" onclick="addNewCourseCard()">
+                    <i class="fa-solid fa-plus" style="font-size:1.5rem; color:var(--accent-color); margin-bottom:8px;"></i>
+                    <p>إضافة بطاقة كورس أو حلقة جديدة</p>
+                </div>
+                <div id="coursesRenderContainer" style="display:contents;"></div>
+            </div>
+        </div>
+
+        <div id="librarySection" class="section-view">
+            <div class="view-top-bar">
+                <h3><i class="fa-regular fa-folder-open"></i> المكتبة الشخصية والملفات المرجعية ذكية الفتح</h3>
+                <button class="btn-back-dash" onclick="returnToDashboard()"><i class="fa-solid fa-arrow-left"></i> العودة</button>
+            </div>
+            <div style="border:1px solid var(--border-color); padding:15px; border-radius:12px; margin-bottom:25px; background: var(--bg-primary);">
+                <h5>أرشفة مادة جديدة في الذاكرة السحابية الذكية</h5><br>
+                <input type="text" id="libTitle" placeholder="عنوان المادة المرجعية" class="input-flat">
+                <select id="libType" class="select-flat" onchange="handleLibraryTypeSwitch(this.value)">
+                    <option value="link">🔗 اسم ورابط خارجي ملموس</option>
+                    <option value="image">🖼️ صورة مخصصة من جهازك</option>
+                    <option value="pdf">📄 ملف PDF ملموس</option>
+                </select>
+                
+                <div id="libValContainer">
+                    <input type="url" id="libValue" placeholder="أدخل الرابط الإلكتروني المستهدف هنا" class="input-flat">
+                </div>
+                <button class="btn-action" onclick="saveLibraryItemData()">تثبيت وأرشفة في المكتبة</button>
+            </div>
+
+            <h5>📂 مستودع الأرشيف المتراص (اضغط فوراً على المربع للفتح المباشر):</h5><br>
+            <div class="horizontal-scroll-grid" id="libraryCentralRenderGrid"></div>
+        </div>
+
+        <div id="ideasSection" class="section-view">
+            <div class="view-top-bar">
+                <h3><i class="fa-regular fa-lightbulb"></i> صندوق الأفكار والومضات العقلية المفاجئة</h3>
+                <button class="btn-back-dash" onclick="returnToDashboard()"><i class="fa-solid fa-arrow-left"></i> العودة</button>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                <div>
+                    <h5>📝 تدوين الأفكار المكتوبة</h5><br>
+                    <textarea id="ideaTextContent" class="input-flat" placeholder="اكتب فكرة المشروع أو الومضات الذهنية هنا فوراً..." style="height:120px;"></textarea>
+                    <button class="btn-action" onclick="saveWrittenIdea()">حفظ الفكرة المكتوبة</button>
+                    <div id="writtenIdeasRender" style="margin-top:15px;"></div>
+                </div>
+                <div>
+                    <h5>🎙️ تسجيل الأفكار الصوتية الفورية</h5><br>
+                    <button class="btn-action" style="background-color:#A84343;" onclick="triggerVoiceRecordMock()"><i class="fa-solid fa-microphone"></i> ابدأ التسجيل الصوتي الآن</button>
+                    <div id="voiceIdeasRender" style="margin-top:15px; font-size:0.9rem; color:var(--text-muted);"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="goalsSection" class="section-view">
+            <div class="view-top-bar">
+                <h3><i class="fa-solid fa-bullseye"></i> لوحة إدارة وتتبع أهداف الحياة الإستراتيجية</h3>
+                <button class="btn-back-dash" onclick="returnToDashboard()"><i class="fa-solid fa-arrow-left"></i> العودة</button>
+            </div>
+            <div style="border:1px solid var(--border-color); padding:15px; border-radius:12px; margin-bottom:20px;">
+                <input type="text" id="goalTitle" placeholder="مثال: إتقان اللغة الإنجليزية بمستوى متقدم" class="input-flat">
+                <textarea id="goalDesc" placeholder="شرح تفصيلي للهدف وخطوات التنفيذ العميقة..." class="input-flat" style="height:80px;"></textarea>
+                <button class="btn-action" onclick="saveLifeGoalItem()">تثبيت هدف جديد للحياة</button>
+            </div>
+            <div id="goalsRenderContainer"></div>
+        </div>
+
+        <div id="statsSection" class="section-view">
+            <div class="view-top-bar">
+                <h3><i class="fa-solid fa-chart-pie"></i> لوحة الرصد والإحصائيات المركزية للمنظومة</h3>
+                <button class="btn-back-dash" onclick="returnToDashboard()"><i class="fa-solid fa-arrow-left"></i> العودة</button>
+            </div>
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:16px;" id="centralStatsContainer"></div>
+        </div>
+
+    </div>
+
+    <script>
+        let DB = JSON.parse(localStorage.getItem('مدار_OS_DB_v25')) || {
+            tasks: [],
+            calendarEvents: [],
+            vocabulary: [],
+            courses: [],
+            library: [],
+            ideas: { written: [], voice: [] },
+            goals: [],
+            english: {
+                listenSources: [], listenTips: [], listenRecords: [],
+                speakImages: [], speakRecords: [],
+                shadowItems: [],
+                readSources: [], readDiaries: [],
+                writeImages: [], writeRecords: []
+            },
+            streak: 45,
+            focusMinutesDone: 0,
+            savedTimerBg: ''
+        };
+
+        let canvas = document.getElementById('freeWritingCanvas');
+        let ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        let canvasColor = '#000000';
+
+        let selectedDayScope = 'السبت';
+        let selectedMonthScope = 'يناير';
+
+        window.onload = function() {
+            renderDashboardCounters();
+            renderCalendarMock();
+            renderVocabularyList();
+            renderCoursesSystem();
+            renderLibrarySystem();
+            initFreeHandCanvas();
+            initTaskScopes();
+            applySavedTimerBackground();
+        };
+
+        function saveDbToLocalStorage() {
+            localStorage.setItem('مدار_OS_DB_v25', JSON.stringify(DB));
+            renderDashboardCounters();
+        }
+
+        function renderDashboardCounters() {
+            document.getElementById('dashTasksCount').innerText = DB.tasks.filter(t => !t.done).length;
+            document.getElementById('dashFocusDone').innerText = DB.focusMinutesDone + " دقيقة";
+            document.getElementById('headerStreak').querySelector('span').innerText = DB.streak + " يوم";
+            
+            document.getElementById('vTotal').innerText = DB.vocabulary.length;
+            document.getElementById('vNew').innerText = DB.vocabulary.filter(v => v.state === 'جديدة').length;
+            document.getElementById('vLearning').innerText = DB.vocabulary.filter(v => v.state === 'أتعلمها').length;
+            document.getElementById('vMastered').innerText = DB.vocabulary.filter(v => v.state === 'أتقنتها').length;
+        }
+
+        function showModule(sectionId) {
+            document.getElementById('dashboardContainer').style.display = 'none';
+            document.querySelectorAll('.section-view').forEach(v => v.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+        }
+
+        function returnToDashboard() {
+            document.body.classList.remove('focus-active');
+            document.querySelectorAll('.section-view').forEach(v => v.classList.remove('active'));
+            document.getElementById('dashboardContainer').style.display = 'block';
+        }
+
+        function toggleSystemTheme() {
+            let current = document.documentElement.getAttribute('data-theme');
+            document.documentElement.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+        }
+
+        function activateFocusMode() {
+            document.body.classList.add('focus-active');
+            showModule('timerSection');
+        }
+
+        function renderCalendarMock() {
+            let grid = document.getElementById('calendarGridRender');
+            grid.innerHTML = '';
+            for(let i=1; i<=31; i++) {
+                let dayBox = document.createElement('div');
+                dayBox.style.padding = '8px'; dayBox.style.textAlign = 'center';
+                dayBox.style.border = '1px solid var(--border-color)'; dayBox.style.borderRadius = '6px';
+                dayBox.innerText = i;
+                if(DB.calendarEvents.some(e => new Date(e.date).getDate() === i)) {
+                    dayBox.style.backgroundColor = 'var(--accent-light)';
+                    dayBox.style.color = 'var(--accent-color)';
+                    dayBox.style.fontWeight = 'bold';
+                }
+                grid.appendChild(dayBox);
+            }
+        }
+
+        function addCalendarEvent() {
+            let title = document.getElementById('calEventTitle').value;
+            let date = document.getElementById('calEventDate').value;
+            if(!title || !date) return;
+            DB.calendarEvents.push({ title, date });
+            saveDbToLocalStorage();
+            renderCalendarMock();
+            document.getElementById('calEventTitle').value = '';
+        }
+
+        const weekDays = ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
+        const yearMonths = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+
+        function initTaskScopes() {
+            let daysBox = document.getElementById('daysScopeContainer');
+            if(daysBox) {
+                daysBox.innerHTML = '';
+                weekDays.forEach(d => {
+                    daysBox.innerHTML += `<button class="scope-btn ${selectedDayScope === d ? 'active' : ''}" onclick="selectTaskScope('day', '${d}')">📅 ${d}</button>`;
+                });
+            }
+
+            let monthsBox = document.getElementById('monthsScopeContainer');
+            if(monthsBox) {
+                monthsBox.innerHTML = '';
+                yearMonths.forEach(m => {
+                    monthsBox.innerHTML += `<button class="scope-btn ${selectedMonthScope === m ? 'active' : ''}" onclick="selectTaskScope('month', '${m}')">📆 شهر ${m}</button>`;
+                });
+            }
+            renderTasksSystem();
+        }
+
+        function selectTaskScope(type, val) {
+            if(type === 'day') { selectedDayScope = val; }
+            else { selectedMonthScope = val; }
+            
+            document.getElementById('taskFormHeader').innerText = `إنشاء مجموعة كتل مهام جديدة لـ [ ${type === 'day' ? selectedDayScope : 'شهر ' + selectedMonthScope} ] ⚡`;
+            document.getElementById('taskFormFields').style.display = 'block';
+            
+            initTaskScopes();
+        }
+
+        function saveNewTaskSystem() {
+            let title = document.getElementById('taskTitle').value;
+            let start = document.getElementById('taskStart').value;
+            let end = document.getElementById('taskEnd').value;
+            let link = document.getElementById('taskLink').value;
+            let priority = document.getElementById('taskPriority').value;
+            let enTrack = document.getElementById('taskEnglishTrack').checked;
+            if(!title) return;
+
+            DB.tasks.push({
+                id: Date.now(), title, start, end, link, priority, enTrack,
+                dayValue: selectedDayScope,
+                monthValue: selectedMonthScope,
+                done: false
+            });
+            saveDbToLocalStorage();
+            renderTasksSystem();
+            document.getElementById('taskTitle').value = '';
+        }
+
+        function renderTasksSystem() {
+            let container = document.getElementById('tasksRenderBox');
+            if(!container) return;
+            container.innerHTML = '';
+            
+            let filtered = DB.tasks.filter(t => t.dayValue === selectedDayScope || t.monthValue === selectedMonthScope);
+            if(filtered.length === 0) {
+                container.innerHTML = `<p style="font-size:0.9rem; color:var(--text-muted)">لا توجد مهام نشطة حالياً في هذا النطاق.</p>`;
+                return;
+            }
+
+            filtered.forEach(t => {
+                let div = document.createElement('div');
+                div.className = 'grid-box-card';
+                div.style.minWidth = '100%';
+                if(t.done) div.style.opacity = '0.5';
+                div.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTaskDoneStatus(${t.id})">
+                            <strong style="margin-right:6px;">${t.title}</strong>
+                            <div style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">⏱️ ${t.start || '--'} إلى ${t.end || '--'}</div>
+                        </div>
+                        ${t.link ? `<button class="btn-secondary" style="padding:4px 8px; font-size:0.75rem;" onclick="window.open('${t.link}', '_blank')">فتح الرابط</button>` : ''}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function toggleTaskDoneStatus(id) {
+            let task = DB.tasks.find(t => t.id === id);
+            if(task) {
+                task.done = !task.done;
+                if(task.done && task.enTrack) {
+                    let trackBox = document.getElementById('enTrackMessagesBox');
+                    if(trackBox) trackBox.innerText = "🔥 مدهش! لقد أنجزت المهمة المرتبطة بمسار اللغة الإنجليزية بنجاح كامل.";
+                }
+                saveDbToLocalStorage();
+                renderTasksSystem();
+            }
+        }
+
+        let timerInterval = null;
+        let timerSecondsLeft = 1500;
+
+        function setShape(shapeClass) {
+            document.getElementById('mainTimeDisplay').className = "timer-box-display shape-" + shapeClass;
+        }
+
+        function startSystemTimer() {
+            if(timerInterval) return;
+            timerInterval = setInterval(() => {
+                if(timerSecondsLeft > 0) {
+                    timerSecondsLeft--;
+                    let m = Math.floor(timerSecondsLeft / 60).toString().padStart(2, '0');
+                    let s = (timerSecondsLeft % 60).toString().padStart(2, '0');
+                    document.getElementById('mainTimeDisplay').innerText = `${m}:${s}`;
+                } else {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    DB.focusMinutesDone += 25;
+                    saveDbToLocalStorage();
+                    alert("⏱️ رائع جداً! انتهت جلسة التركيز الحالية بنجاح ملموس.");
+                }
+            }, 1000);
+        }
+
+        function pauseSystemTimer() { clearInterval(timerInterval); timerInterval = null; stopAllAmbientAudio(); }
+        function resetSystemTimer() { timerSecondsLeft = 1500; document.getElementById('mainTimeDisplay').innerText = "25:00"; pauseSystemTimer(); }
+
+        function stopAllAmbientAudio() {
+            ['audio_rain', 'audio_thunder', 'audio_coffee', 'audio_lofi'].forEach(id => {
+                let a = document.getElementById(id);
+                if(a) { a.pause(); a.currentTime = 0; }
+            });
+        }
+
+        function playSelectedAmbient() {
+            stopAllAmbientAudio();
+            let val = document.getElementById('ambientSoundSelect').value;
+            if(val !== 'none') {
+                let targetAudio = document.getElementById('audio_' + val);
+                if(targetAudio) {
+                    targetAudio.play().catch(err => console.log("تنبيه الصوت: يتطلب تفاعل المستخدم المباشر."));
+                }
+            }
+        }
+
+        function triggerBgUploadClick() { document.getElementById('timerBgUploadInput').click(); }
+        
+        function processTimerBg(e) {
+            let file = e.target.files[0];
+            if(file) {
+                let reader = new FileReader();
+                reader.onload = function(event) {
+                    let base64Img = event.target.result;
+                    DB.savedTimerBg = base64Img;
+                    saveDbToLocalStorage();
+                    applySavedTimerBackground();
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function applySavedTimerBackground() {
+            if(DB.savedTimerBg) {
+                let area = document.getElementById('timerViewportArea');
+                area.style.backgroundImage = `url('${DB.savedTimerBg}')`;
+                document.documentElement.style.setProperty('--timer-text-color', '#FFFFFF');
+                document.getElementById('mainTimeDisplay').style.textShadow = '0px 4px 15px rgba(0,0,0,0.8)';
+            }
+        }
+
+        function toggleTimerControls() {
+            let wrapper = document.getElementById('timerControlsWrapper');
+            let icon = document.getElementById('arrowHideIcon');
+            if(wrapper.style.display === 'none') {
+                wrapper.style.display = 'block'; icon.className = "fa-solid fa-chevron-up";
+            } else {
+                wrapper.style.display = 'none'; icon.className = "fa-solid fa-chevron-down";
+            }
+        }
+
+        function openEnSubPage(pageId) {
+            document.querySelectorAll('#enSubPagesContainer > .sub-page-view').forEach(p => p.style.display = 'none');
+            const targetPage = document.getElementById('enPage_' + pageId);
+            if(targetPage) targetPage.style.display = 'block';
+            renderEnglishSubPageData(pageId);
+        }
+
+        function triggerPrompt(actionKey) {
+            if(actionKey === 'listenSource') {
+                let name = prompt("أدخل اسم مصدر الاستماع:");
+                let url = prompt("أدخل رابط المادة الصوتية الكامل:");
+                if(name && url) { DB.english.listenSources.push({name, url}); saveDbToLocalStorage(); renderEnglishSubPageData('enListen'); }
+            }
+            if(actionKey === 'listenTip') {
+                let tip = prompt("اكتب النصيحة أو الملاحظة الفعالة الحالية:");
+                if(tip) { DB.english.listenTips.push(tip); saveDbToLocalStorage(); renderEnglishSubPageData('enListen'); }
+            }
+            if(actionKey === 'listenRecord') {
+                let dateStr = prompt("أدخل اليوم والتاريخ الحالية:");
+                let videoTitle = prompt("أدخل عنوان المقطع أو الفيديو المسموع له:");
+                if(dateStr && videoTitle) { DB.english.listenRecords.push({dateStr, videoTitle}); saveDbToLocalStorage(); renderEnglishSubPageData('enListen'); }
+            }
+            if(actionKey === 'speakRecord') {
+                let dayDate = prompt("أدخل اليوم والتاريخ الحاليين:");
+                let duration = prompt("أدخل مدة التحدث الفعلية بالدقائق اليوم:");
+                if(dayDate && duration) { DB.english.speakRecords.push({dayDate, duration}); saveDbToLocalStorage(); renderEnglishSubPageData('enSpeak'); }
+            }
+            if(actionKey === 'shadowItem') {
+                let name = prompt("أدخل اسم مصدر التدريب الحالي:");
+                let date = prompt("أدخل التاريخ المقدر للتدريب:");
+                let url = prompt("أدخل الرابط الكامل للتمرين:");
+                if(name && date && url) { DB.english.shadowItems.push({name, date, url}); saveDbToLocalStorage(); renderEnglishSubPageData('enShadow'); }
+            }
+            if(actionKey === 'readSource') {
+                let name = prompt("أدخل اسم المصدر التعليمي المستهدف للقراءة:");
+                let url = prompt("أدخل الرابط الخارجي المباشر:");
+                if(name && url) { DB.english.readSources.push({name, url}); saveDbToLocalStorage(); renderEnglishSubPageData('enRead'); }
+            }
+            if(actionKey === 'readDiary') {
+                let day = prompt("أدخل اليوم والتاريخ:");
+                let title = prompt("أدخل اسم الكتاب المقروء:");
+                let link = prompt("رابط مادة الكتاب:");
+                let status = prompt("هل المادة مكتملة أم غير مكتملة؟");
+                if(day && title) { DB.english.readDiaries.push({day, title, link, status}); saveDbToLocalStorage(); renderEnglishSubPageData('enRead'); }
+            }
+            if(actionKey === 'writeRecord') {
+                let dayDate = prompt("أدخل اليوم والتاريخ لجلسة الكتابة الحرة:");
+                let duration = prompt("أدخل المدة الزمنية بالدقائق المنجزة:");
+                if(dayDate && duration) { DB.english.writeRecords.push({dayDate, duration}); saveDbToLocalStorage(); renderEnglishSubPageData('enWrite'); }
+            }
+        }
+
+        function uploadEnImage(event, mode) {
+            let file = event.target.files[0];
+            if(file) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    if(mode === 'speak') { DB.english.speakImages.push(e.target.result); }
+                    else { DB.english.writeImages.push(e.target.result); }
+                    saveDbToLocalStorage();
+                    renderEnglishSubPageData(mode === 'speak' ? 'enSpeak' : 'enWrite');
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function renderEnglishSubPageData(pageId) {
+            if(pageId === 'enListen') {
+                document.getElementById('listenSourcesRender').innerHTML = DB.english.listenSources.map(s => `<div class="grid-box-card"><strong>${s.name}</strong><br><button class="btn-action" style="margin-top:8px; padding:4px 8px; font-size:0.8rem;" onclick="window.open('${s.url}', '_blank')">زيارة المصدر</button></div>`).join('');
+                document.getElementById('listenTipsRender').innerHTML = DB.english.listenTips.map(t => `<div class="grid-box-card" style="border-right: 4px solid var(--accent-color);">💡 ${t}</div>`).join('');
+                document.getElementById('listenRecordsRender').innerHTML = DB.english.listenRecords.map(r => `<div class="grid-box-card" style="border-radius:14px; background:var(--accent-light);"><strong>📅 ${r.dateStr}</strong><p style="font-size:0.85rem; margin-top:4px;">🎥 ${r.videoTitle.substring(0, 30)}...</p></div>`).join('');
+            }
+            if(pageId === 'enSpeak') {
+                document.getElementById('speakImagesRender').innerHTML = DB.english.speakImages.map(img => `<div class="grid-box-card"><img src="${img}" style="width:100%; height:100px; object-fit:cover; border-radius:8px; cursor:pointer;" onclick="window.open(this.src, '_blank')"></div>`).join('');
+                document.getElementById('speakRecordsRender').innerHTML = DB.english.speakRecords.map(r => `<div class="grid-box-card"><strong>📅 ${r.dayDate}</strong><br><span>⏱️ مدة الجلسة: ${r.duration} دقيقة</span></div>`).join('');
+            }
+            if(pageId === 'enShadow') {
+                document.getElementById('shadowRenderContainer').innerHTML = DB.english.shadowItems.map(s => `<div class="grid-box-card"><strong>${s.name}</strong><br><small>${s.date}</small><br><button class="btn-secondary" style="margin-top:6px; padding:4px;" onclick="window.open('${s.url}', '_blank')">فتح التمرين</button></div>`).join('');
+            }
+            if(pageId === 'enRead') {
+                document.getElementById('readSourcesRender').innerHTML = DB.english.readSources.map(s => `<div class="grid-box-card"><strong>${s.name}</strong><br><button class="btn-action" style="margin-top:6px;" onclick="window.open('${s.url}', '_blank')">فتح المقال</button></div>`).join('');
+                document.getElementById('readDiariesRender').innerHTML = DB.english.readDiaries.map(d => `<div class="grid-box-card"><strong>📖 ${d.title}</strong><br><small>التاريخ: ${d.day}</small><br><span style="font-size:0.8rem; color:var(--accent-color);">${d.status}</span><br>${d.link ? `<button class="btn-secondary" style="padding:2px;" onclick="window.open('${d.link}', '_blank')">رابط الكتاب</button>` : ''}</div>`).join('');
+            }
+            if(pageId === 'enWrite') {
+                document.getElementById('writeImagesRender').innerHTML = DB.english.writeImages.map(img => `<div class="grid-box-card"><img src="${img}" style="width:100%; height:100px; object-fit:cover; border-radius:8px; cursor:pointer;" onclick="window.open(this.src, '_blank')"></div>`).join('');
+                document.getElementById('writeRecordsRender').innerHTML = DB.english.writeRecords.map(r => `<div class="grid-box-card"><strong>📅 ${r.dayDate}</strong><br><span>⏱️ مدة الكتابة: ${r.duration} دقيقة</span></div>`).join('');
+            }
+        }
+
+        function initFreeHandCanvas() {
+            if(!canvas) return;
+            canvas.addEventListener('mousedown', startDrawingProcess);
+            canvas.addEventListener('mouseup', stopDrawingProcess);
+            canvas.addEventListener('mousemove', drawOnCanvasEngine);
+
+            canvas.addEventListener('touchstart', (e) => { startDrawingProcess(e.touches[0]); e.preventDefault(); });
+            canvas.addEventListener('touchend', stopDrawingProcess);
+            canvas.addEventListener('touchmove', (e) => { drawOnCanvasEngine(e.touches[0]); e.preventDefault(); });
+        }
+
+        function startDrawingProcess(e) {
+            isDrawing = true;
+            ctx.beginPath();
+            let rect = canvas.getBoundingClientRect();
+            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        }
+        function stopDrawingProcess() { isDrawing = false; ctx.beginPath(); }
+        
+        function drawOnCanvasEngine(e) {
+            if(!isDrawing) return;
+            let rect = canvas.getBoundingClientRect();
+            ctx.lineWidth = canvasColor === 'erase' ? 20 : 3;
+            ctx.strokeStyle = canvasColor === 'erase' ? '#FFFFFF' : '#000000';
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+            ctx.stroke();
+        }
+
+        function setCanvasTool(tool) { canvasColor = tool; }
+        function clearCanvasArea() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+
+        function openNewWordModal() { document.getElementById('newWordModal').style.display = 'block'; }
+        function closeWordModal() { document.getElementById('newWordModal').style.display = 'none'; }
+
+        function saveWordToDatabase() {
+            let word = document.getElementById('wWord').value;
+            let ar = document.getElementById('wMeaningAr').value;
+            if(!word || !ar) { alert("يرجى إدخال الكلمة ومعناها العربي على الأقل!"); return; }
+
+            DB.vocabulary.push({
+                word, ar,
+                pron: document.getElementById('wPron').value,
+                ipa: document.getElementById('wIpa').value,
+                en: document.getElementById('wMeaningEn').value,
+                type: document.getElementById('wType').value,
+                source: document.getElementById('wSource').value,
+                level: document.getElementById('wLevel').value,
+                state: document.getElementById('wState').value,
+                example: document.getElementById('wExample').value
+            });
+
+            saveDbToLocalStorage();
+            renderVocabularyList();
+            closeWordModal();
+            
+            document.getElementById('wWord').value = '';
+            document.getElementById('wMeaningAr').value = '';
+        }
+
+        function renderVocabularyList(filteredArr = null) {
+            let container = document.getElementById('vocabularyListContainer');
+            if(!container) return;
+            container.innerHTML = '';
+            let targetArr = filteredArr || DB.vocabulary;
+
+            if(targetArr.length === 0) {
+                container.innerHTML = `<p style="grid-column: 1/-1; color: var(--text-muted);">لا توجد كلمات متاحة في هذا النطاق حالياً.</p>`;
+                return;
+            }
+
+            targetArr.forEach(v => {
+                container.innerHTML += `
+                    <div class="voc-box-card">
+                        <strong style="font-size:1.1rem; color:var(--accent-color);">${v.word}</strong>
+                        <div style="font-size:0.85rem; color:var(--text-muted); margin:4px 0;">[${v.type}] | ${v.pron || ''}</div>
+                        <div style="font-weight:bold; font-size:0.95rem; margin-bottom:8px;">🌍 الحاصل: ${v.ar}</div>
+                        <span style="font-size:0.75rem; background:var(--accent-light); padding:3px 6px; border-radius:4px;">${v.state}</span>
+                    </div>
+                `;
+            });
+        }
+
+        function filterVocabularyItems() {
+            let q = document.getElementById('vocSearchInput').value.toLowerCase();
+            let matched = DB.vocabulary.filter(v => v.word.toLowerCase().includes(q) || v.ar.includes(q));
+            renderVocabularyList(matched);
+        }
+
+        function startSpacedReview() {
+            if(DB.vocabulary.length === 0) { alert("مستودع الكلمات فارغ حالياً! قم بإدراج الكلمات أولاً."); return; }
+            let randomWord = DB.vocabulary[Math.floor(Math.random() * DB.vocabulary.length)];
+            alert(`🔄 محاكي نظام المراجعة الذكية المتباعدة:\nالكلمة المستهدفة للفحص: [ ${randomWord.word} ]\nالمعنى الحقيقي والترجمة: [ ${randomWord.ar} ]`);
+        }
+
+        function handleLibraryTypeSwitch(type) {
+            let box = document.getElementById('libValContainer');
+            if(type === 'link') {
+                box.innerHTML = `<input type="url" id="libValue" placeholder="أدخل الرابط الإلكتروني المستهدف هنا" class="input-flat">`;
+            } else if(type === 'image') {
+                box.innerHTML = `<input type="file" id="libValueFile" class="input-flat" accept="image/*">`;
+            } else {
+                box.innerHTML = `<input type="file" id="libValueFile" class="input-flat" accept=".pdf">`;
+            }
+        }
+
+        function saveLibraryItemData() {
+            let title = document.getElementById('libTitle').value;
+            let type = document.getElementById('libType').value;
+            if(!title) return;
+
+            if(type === 'link') {
+                let val = document.getElementById('libValue').value;
+                if(!val) return;
+                DB.library.push({ title, type, val });
+                finalizeLibrarySave();
+            } else {
+                let fileInput = document.getElementById('libValueFile');
+                let file = fileInput.files[0];
+                if(!file) return;
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    DB.library.push({ title, type, val: e.target.result });
+                    finalizeLibrarySave();
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function finalizeLibrarySave() {
+            saveDbToLocalStorage();
+            renderLibrarySystem();
+            document.getElementById('libTitle').value = '';
+        }
+
+        function renderLibrarySystem() {
+            let container = document.getElementById('libraryCentralRenderGrid');
+            if(!container) return;
+            container.innerHTML = '';
+            
+            if(DB.library.length === 0) {
+                container.innerHTML = `<p style="font-size:0.9rem; color:var(--text-muted)">المكتبة الشخصية فارغة حالياً.</p>`;
+                return;
+            }
+
+            DB.library.forEach(l => {
+                let card = document.createElement('div');
+                card.className = 'grid-box-card';
+                card.style.cursor = 'pointer';
+                let icon = l.type === 'link' ? '🔗' : (l.type === 'image' ? '🖼️' : '📄');
+                
+                card.innerHTML = `
+                    <div style="text-align:center;">
+                        <span style="font-size:1.8rem;">${icon}</span>
+                        <h6 style="margin-top:8px; font-size:0.9rem;">${l.title}</h6>
+                        <small style="color:var(--text-muted)">نوع: ${l.type}</small>
+                    </div>
+                `;
+                card.onclick = function() {
+                    if(l.type === 'link') { window.open(l.val, '_blank'); }
+                    else {
+                        let win = window.open();
+                        if(win) {
+                            win.document.write(`<iframe src="${l.val}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
+                        } else { alert("يرجى السماح بفتح النوافذ المنبثقة لمشاهدة الملف!"); }
+                    }
+                };
+                container.appendChild(card);
+            });
+        }
+
+        function renderCoursesSystem() {
+            let container = document.getElementById('coursesRenderContainer'); 
+            if(!container) return;
+            container.innerHTML = '';
+            DB.courses.forEach(c => {
+                container.innerHTML += `<div style="border:1px solid var(--border-color); padding:15px; border-radius:12px; background:var(--bg-secondary);"><h6>${c.name}</h6><a href="${c.url}" target="_blank" style="font-size:0.8rem; color:var(--accent-color);">رابط الدخول</a></div>`;
+            });
+        }
+
+        function addNewCourseCard() {
+            let name = prompt("أدخل اسم الكورس:"); 
+            let url = prompt("أدخل الرابط الكامل:");
+            if(name && url) { DB.courses.push({ name, url }); saveDbToLocalStorage(); renderCoursesSystem(); }
+        }
+
+        function saveWrittenIdea() {
+            let txt = document.getElementById('ideaTextContent').value; 
+            if(!txt) return;
+            DB.ideas.written.push(txt); 
+            saveDbToLocalStorage();
+            document.getElementById('ideaTextContent').value = '';
+            document.getElementById('writtenIdeasRender').innerHTML += `<div style="border-bottom:1px solid var(--border-color); padding:6px 0;">- ${txt}</div>`;
+        }
+
+        function triggerVoiceRecordMock() {
+            document.getElementById('voiceIdeasRender').innerHTML += `<div>🔊 مذكرة صوتية مسجلة بتاريخ اليوم محفوظة تلقائياً</div>`;
+        }
+
+        function saveLifeGoalItem() {
+            let title = document.getElementById('goalTitle').value; 
+            let desc = document.getElementById('goalDesc').value;
+            if(!title || !desc) return;
+            document.getElementById('goalsRenderContainer').innerHTML += `<div style="margin-bottom:12px; padding:10px; border-bottom:1px solid var(--border-color);"><strong>🎯 ${title}</strong><div style="font-size:0.85rem; color:var(--text-muted); cursor:pointer;" onclick="alert('${desc}')">اضغط لعرض التفاصيل</div></div>`;
+            document.getElementById('goalTitle').value = '';
+            document.getElementById('goalDesc').value = '';
+        }
+    </script>
+</body>
+</html>
